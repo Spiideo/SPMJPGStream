@@ -12,6 +12,8 @@ extern NSString * const SPMJPGStreamCompressionKey;
 extern NSString * const SPMJPGStreamFPSKey;
 extern NSString * const SPMJPGStreamResolutionKey;
 
+@class RACSignal;
+
 @interface SPMJPGStream : NSObject
 
 @property (readonly) NSDictionary *options;

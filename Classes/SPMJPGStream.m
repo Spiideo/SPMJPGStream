@@ -2,14 +2,14 @@
 #import "SPMJPGStream.h"
 
 #import <ReactiveCocoa/ReactiveCocoa.h>
-#import <libextscope/EXTScope.h>
+#import <libextobjc/EXTScope.h>
 
-NSString * const SPMJPGStreamUserKey                 = @"SPMJPGStreamUser";
-NSString * const SPMJPGStreamPasswordKey                 = @"SPMJPGStreamPasswordKey";
-NSString * const SPMJPGStreamURLKey                 = @"SPMJPGStreamURLKey";
-NSString * const SPMJPGStreamCompressionKey                 = @"SPMJPGStreamCompressionKey";
-NSString * const SPMJPGStreamFPSKey                 = @"SPMJPGStreamFPSKey";
-NSString * const SPMJPGStreamResolutionKey                 = @"SPMJPGStreamResolutionKey";
+NSString * const SPMJPGStreamUserKey         = @"SPMJPGStreamUser";
+NSString * const SPMJPGStreamPasswordKey     = @"SPMJPGStreamPasswordKey";
+NSString * const SPMJPGStreamURLKey          = @"SPMJPGStreamURLKey";
+NSString * const SPMJPGStreamCompressionKey  = @"SPMJPGStreamCompressionKey";
+NSString * const SPMJPGStreamFPSKey          = @"SPMJPGStreamFPSKey";
+NSString * const SPMJPGStreamResolutionKey   = @"SPMJPGStreamResolutionKey";
 
 @interface SPMJPGStream ()
 
@@ -18,6 +18,8 @@ NSString * const SPMJPGStreamResolutionKey                 = @"SPMJPGStreamResol
 @property (strong) NSURLConnection *connection;
 @property (assign) BOOL streaming;
 @property (strong) RACReplaySubject *subject;
+@property (strong) dispatch_queue_t queue;
+@property (strong) dispatch_queue_t imqueue;
 
 @end
 
@@ -30,6 +32,9 @@ NSString * const SPMJPGStreamResolutionKey                 = @"SPMJPGStreamResol
         NSAssert( options[SPMJPGStreamURLKey], @"SPMJPGStreamURLKey is required" );
         self.subject = [RACReplaySubject subject];
         self.options = options;
+        self.queue = dispatch_queue_create( "com.spiideo.spmjpgstream.runloop", NULL );
+        self.imqueue = dispatch_queue_create( "com.spiideo.spmjpgstream.image", NULL );
+
     }
 
     return self;
@@ -90,7 +95,7 @@ NSString * const SPMJPGStreamResolutionKey                 = @"SPMJPGStreamResol
     self.streaming = YES;
 
     @weakify(self);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_async( self.queue, ^{
         @strongify(self);
         NSRunLoop *loop = [NSRunLoop currentRunLoop];
         [self.connection scheduleInRunLoop:loop forMode:NSRunLoopCommonModes];
@@ -125,16 +130,20 @@ NSString * const SPMJPGStreamResolutionKey                 = @"SPMJPGStreamResol
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response
 {
+    NSData *data = [NSData dataWithData:self.data];
+
+    dispatch_async( self.imqueue, ^{
 #if TARGET_OS_IPHONE
-    UIImage *image = [[UIImage alloc] initWithData:self.data];
+        UIImage *image = [[UIImage alloc] initWithData:data];
 #else
-    NSImage *image = [[NSImage alloc] initWithData:self.data];
+        NSImage *image = [[NSImage alloc] initWithData:data];
 #endif
 
-    if ( image )
-    {
-        [self.subject sendNext:image];
-    }
+        if ( image )
+        {
+            [self.subject sendNext:image];
+        }
+    });
 
     [self.data setLength:0];
 }
