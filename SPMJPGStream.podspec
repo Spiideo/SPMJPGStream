@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.author       = { "Gustaf Lindqvist" => "gustaf@spiideo.com" }
   s.ios.deployment_target = '6.0'
   s.osx.deployment_target = '10.8'
-  s.source       = { :git => "https://github.com/Spiideo/SPMJPGStream.git", :commit => "9cee75b9a4f506b20f5798c36aa4e58204ff9792" }
+  s.source       = { :git => "https://github.com/Spiideo/SPMJPGStream.git", :commit => "9f126c4acdc9bdad968e23ad42c5762dd92b69b4" }
   s.source_files  = 'Classes/*.{h,m}'
   # s.exclude_files = 'Classes/Exclude'
   s.public_header_files = 'Classes/*.h'
