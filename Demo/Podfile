@@ -1,0 +1,6 @@
+workspace 'SPMJPGStream Demo'
+
+platform :ios, '6.0'
+pod 'ReactiveCocoa', '~> 2.1.8'
+pod 'libextobjc/EXTScope'
+pod 'SPMJPGStream', :path => '../SPMJPGStream.podspec'
