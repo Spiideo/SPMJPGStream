@@ -1,6 +1,9 @@
 
 #import "SPMJPGStream.h"
 
+#import <ReactiveCocoa/ReactiveCocoa.h>
+#import <libextscope/EXTScope.h>
+
 NSString * const SPMJPGStreamUserKey                 = @"SPMJPGStreamUser";
 NSString * const SPMJPGStreamPasswordKey                 = @"SPMJPGStreamPasswordKey";
 NSString * const SPMJPGStreamURLKey                 = @"SPMJPGStreamURLKey";
@@ -122,8 +125,12 @@ NSString * const SPMJPGStreamResolutionKey                 = @"SPMJPGStreamResol
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response
 {
+#if TARGET_OS_IPHONE
     UIImage *image = [[UIImage alloc] initWithData:self.data];
-//    NSImage *image = [[NSImage alloc] initWithData:self.data];
+#else
+    NSImage *image = [[NSImage alloc] initWithData:self.data];
+#endif
+
     if ( image )
     {
         [self.subject sendNext:image];

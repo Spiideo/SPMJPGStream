@@ -1,5 +1,9 @@
 
-#import <Foundation/Foundation.h>
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#else
+#import <Cocoa/Cocoa.h>
+#endif
 
 extern NSString * const SPMJPGStreamUserKey;
 extern NSString * const SPMJPGStreamPasswordKey;
