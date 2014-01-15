@@ -19,11 +19,9 @@ extern NSString * const SPMJPGStreamResolutionKey;
 @property (readonly) NSDictionary *options;
 @property (readonly, getter=isStreaming) BOOL streaming;
 
-@property (readonly) RACSignal *signal;
-
 - (instancetype)initWithOptions:(NSDictionary *)options;
 
-- (void)start;
+- (RACSignal *)start;
 - (void)stop;
 
 @end

@@ -30,11 +30,9 @@ NSString * const SPMJPGStreamResolutionKey   = @"SPMJPGStreamResolutionKey";
     if ( self = [self init] )
     {
         NSAssert( options[SPMJPGStreamURLKey], @"SPMJPGStreamURLKey is required" );
-        self.subject = [RACReplaySubject subject];
         self.options = options;
         self.queue = dispatch_queue_create( "com.spiideo.spmjpgstream.runloop", NULL );
         self.imqueue = dispatch_queue_create( "com.spiideo.spmjpgstream.image", NULL );
-
     }
 
     return self;
@@ -45,17 +43,15 @@ NSString * const SPMJPGStreamResolutionKey   = @"SPMJPGStreamResolutionKey";
     [self stop];
 }
 
-- (RACSignal *)signal
-{
-    return self.subject;
-}
-
-- (void)start
+- (RACSignal *)start
 {
     if ( self.streaming )
     {
-        return;
+        NSLog(@"SPMJPGStream->can start while already streaming");
+        return nil;
     }
+
+    self.subject = [RACReplaySubject subject];
 
     id x;
     self.data = [[NSMutableData alloc] init];
@@ -102,6 +98,8 @@ NSString * const SPMJPGStreamResolutionKey   = @"SPMJPGStreamResolutionKey";
         [self.connection start];
         [loop run];
     });
+
+    return self.subject;
 }
 
 - (void)stop
@@ -111,6 +109,11 @@ NSString * const SPMJPGStreamResolutionKey   = @"SPMJPGStreamResolutionKey";
 
 - (void)stopWithError:(NSError *)error
 {
+    [self.connection cancel];
+    self.connection = nil;
+
+    self.streaming = NO;
+
     if ( error )
     {
         [self.subject sendError:error];
@@ -119,11 +122,6 @@ NSString * const SPMJPGStreamResolutionKey   = @"SPMJPGStreamResolutionKey";
     {
         [self.subject sendCompleted];
     }
-
-    [self.connection cancel];
-    self.connection = nil;
-
-    self.streaming = NO;
 }
 
 #pragma mark NSURLConnectionDelegate
