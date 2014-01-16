@@ -51,7 +51,7 @@ NSString * const SPMJPGStreamResolutionKey   = @"SPMJPGStreamResolutionKey";
         return nil;
     }
 
-    self.subject = [RACReplaySubject subject];
+    self.subject = [RACReplaySubject replaySubjectWithCapacity:4];
 
     id x;
     self.data = [[NSMutableData alloc] init];
@@ -176,7 +176,8 @@ NSString * const SPMJPGStreamResolutionKey   = @"SPMJPGStreamResolutionKey";
                                          userInfo:@{
                                             NSLocalizedDescriptionKey : @"Authentication failure"
                                             }];
-        [self.subject sendError:error];
+
+        [self stopWithError:error];
     }
 }
 
